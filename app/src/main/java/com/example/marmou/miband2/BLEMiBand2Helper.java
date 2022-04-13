@@ -245,6 +245,22 @@ public class BLEMiBand2Helper {
         }
     }
 
+    /**
+     * Send text to miBand2 as vibrate
+     */
+    public void Vibrate() {
+        if (!isConnectedToGatt) {
+            connect();
+        }
+        try {
+            characteristic = myGatBand.getService(Consts.UUID_CUSTOM_VIBRATE).getCharacteristic(Consts.UUID_CHARACTERISTIC_2A06);
+            characteristic.setValue(2, BluetoothGattCharacteristic.FORMAT_UINT8, 0);
+            myGatBand.writeCharacteristic(characteristic);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     public interface BLEAction {
         void onDisconnect();
 

@@ -39,6 +39,9 @@ public class Consts {//this is common for all BTLE devices. see http://stackover
     // service uuid fee1
     public static final UUID UUID_CHARACTERISTIC_AUTH = UUID.fromString("00000009-0000-3512-2118-0009af100700");
     public static final UUID UUID_BUTTON_TOUCH = UUID.fromString("00000010-0000-3512-2118-0009af100700");
+    public static final UUID UUID_CUSTOM_VIBRATE = UUID.fromString("00001802-0000-1000-8000-00805f9b34fb0");
+
+
 
     //Heart beat service
     public static final UUID UUID_START_HEARTRATE_CONTROL_POINT = UUID.fromString("00002a39-0000-1000-8000-00805f9b34fb");

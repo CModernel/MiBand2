@@ -3,8 +3,13 @@ package com.example.marmou.miband2;
 
 import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCharacteristic;
+import android.content.Intent;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
+import android.os.PowerManager;
+import android.provider.Settings;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -50,6 +55,17 @@ public class MainActivity extends AppCompatActivity implements BLEMiBand2Helper.
         helper = new BLEMiBand2Helper(MainActivity.this, handler);
         helper.addListener(this);
 
+        //// whitelist battery optimization, avoids losing connection on lock screen
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            Intent intent = new Intent();
+            String packageName = getPackageName();
+            PowerManager pm = (PowerManager) getSystemService(POWER_SERVICE);
+            if (!pm.isIgnoringBatteryOptimizations(packageName)) {
+                intent.setAction(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS);
+                intent.setData(Uri.parse("package:" + packageName));
+                startActivity(intent);
+            }
+        }
 
         // Setup Bluetooth:
         helper.connect();
@@ -62,7 +78,6 @@ public class MainActivity extends AppCompatActivity implements BLEMiBand2Helper.
         getTouchNotifications();
 
     }
-
 
     protected void permissions(){
 

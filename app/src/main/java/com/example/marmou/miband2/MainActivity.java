@@ -43,7 +43,7 @@ public class MainActivity extends AppCompatActivity implements BLEMiBand2Helper.
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_main_timer);
 
         textCall = (EditText) findViewById(R.id.textoLlamada);
         textSms = (EditText) findViewById(R.id.mensaje);
@@ -116,7 +116,7 @@ public class MainActivity extends AppCompatActivity implements BLEMiBand2Helper.
         helper.getNotifications(
                 Consts.UUID_SERVICE_MIBAND_SERVICE,
                 Consts.UUID_BUTTON_TOUCH);
-        Toast.makeText(MainActivity.this, "Botao ativado", Toast.LENGTH_SHORT).show();
+        // Toast.makeText(MainActivity.this, "Botao ativado", Toast.LENGTH_SHORT).show();
     }
     /**
      * button to collect notifications of the button

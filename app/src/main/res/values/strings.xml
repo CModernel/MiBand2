@@ -9,6 +9,11 @@
     <string name="btnDescon">Desconectar MiBand</string>
     <string name="btnBoton">Aativar botao MiBand</string>
     <string name="btnConectar">Conectar na MiBand</string>
-
+    <string name="txtTime">Remaining time: </string>
+    <string name="txt30Secs">30 Seconds</string>
+    <string name="txt60Secs">60 Seconds</string>
+    <string name="txt90Secs">90 Seconds</string>
+    <string name="txt120Secs">120 Seconds</string>
+    <string name="txt180Secs">180 Seconds</string>
 
 </resources>

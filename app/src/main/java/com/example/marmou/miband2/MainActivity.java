@@ -3,6 +3,7 @@ package com.example.marmou.miband2;
 
 import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCharacteristic;
+import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
@@ -16,10 +17,10 @@ import android.util.Log;
 import android.view.View;
 
 import android.widget.EditText;
+import android.widget.RadioGroup;
+import android.widget.TextView;
 import android.widget.Toast;
 
-
-import com.example.marmou.miband2.apl.AplKeyCommand;
 
 import java.util.ArrayList;
 import java.util.UUID;
@@ -35,9 +36,18 @@ public class MainActivity extends AppCompatActivity implements BLEMiBand2Helper.
     public ArrayList<String> parts;
     public static String MAC;
 
+    public TextView txtTime;
+    public RadioGroup radGrp;
+
+    PowerManager pm;
+    PowerManager.WakeLock wl;
+
     static int POS=0;
 
+    public int timer = 9;
+
     Handler handler = new Handler(Looper.getMainLooper());
+    Handler handlerTemporizador = new Handler();
     BLEMiBand2Helper helper = null;
 
     @Override
@@ -48,6 +58,8 @@ public class MainActivity extends AppCompatActivity implements BLEMiBand2Helper.
         textCall = (EditText) findViewById(R.id.textoLlamada);
         textSms = (EditText) findViewById(R.id.mensaje);
 
+        txtTime = (TextView) findViewById(R.id.txtTime);
+        radGrp = (RadioGroup) findViewById(R.id.grp_radio);
 
         EditText mac=(EditText) findViewById(R.id.txMac);
         MAC=mac.getText().toString();
@@ -77,6 +89,12 @@ public class MainActivity extends AppCompatActivity implements BLEMiBand2Helper.
         }
         getTouchNotifications();
 
+        // Power manager partial wake lock
+        pm =(PowerManager) getSystemService(Context.POWER_SERVICE);
+        wl = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "AppName:tag");
+
+        if(!wl.isHeld())
+            wl.acquire();
     }
 
     protected void permissions(){
@@ -87,6 +105,9 @@ public class MainActivity extends AppCompatActivity implements BLEMiBand2Helper.
     protected void onDestroy() {
         if (helper != null)
             helper.DisconnectGatt();
+
+        wl.release();
+
         super.onDestroy();
     }
 
@@ -116,7 +137,7 @@ public class MainActivity extends AppCompatActivity implements BLEMiBand2Helper.
         helper.getNotifications(
                 Consts.UUID_SERVICE_MIBAND_SERVICE,
                 Consts.UUID_BUTTON_TOUCH);
-        // Toast.makeText(MainActivity.this, "Botao ativado", Toast.LENGTH_SHORT).show();
+
     }
     /**
      * button to collect notifications of the button
@@ -209,23 +230,53 @@ public class MainActivity extends AppCompatActivity implements BLEMiBand2Helper.
     @Override
     public void onNotification(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic) {
         UUID alertUUID = characteristic.getUuid();
-        if (alertUUID.equals(Consts.UUID_BUTTON_TOUCH)) {
-            handler.post(new Runnable() {
-                @Override
-                public void run() {
-                    try{
-                        Log.v("Test","BOTAO CLICADO");
-                        AplKeyCommand.takePhoto();
-                        //Camera.dispatchTakePictureIntent(MainActivity.this);
-                        functionButton();
-                    }
-                    catch (Exception e){
-                        e.printStackTrace();
-                    }
-                }
-            });
+        final String texto = getString(R.string.txtTime);
+        final int remainingSeconds = getSelectedSeconds();
+        timer = remainingSeconds;
+        //Log.v("Test", String.valueOf(timer));
 
-        }
+        PowerManager pm =(PowerManager) getSystemService(Context.POWER_SERVICE);
+        final PowerManager.WakeLock wl = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "AppName:tag");
+        if(!wl.isHeld())
+            wl.acquire();
+
+        if (alertUUID.equals(Consts.UUID_BUTTON_TOUCH)) {
+            //if(!seEstaEjecutandoTemporizador){
+            //    seEstaEjecutandoTemporizador=true;
+                try {
+                    sendText();
+
+                    Runnable runnable = new Runnable() {
+                        @Override
+                        public void run() {
+                            try {
+                                txtTime.setText(texto + " " +String.valueOf(timer));
+                                /* do what you need to do */
+                                if (timer > 0) {
+                                    // There is still time remaining
+                                    Log.v("Test","Tiempo restante: " + timer);
+                                    timer--;
+                                    handlerTemporizador.postDelayed(this, 1000);
+                                } else {
+                                    // No time remaining, we must take it out of the stack of execution
+                                    timer = remainingSeconds;
+                                    sendText();
+                                    //seEstaEjecutandoTemporizador=false;
+                                    handlerTemporizador.removeCallbacks(this);
+                                }
+                            }catch (Exception ex){
+                                ex.printStackTrace();
+                            }
+                        }
+                    };
+                    handlerTemporizador.postDelayed(runnable, 100);
+
+                }catch (Exception e){
+                    e.printStackTrace();
+                }
+            }
+        //}
+
     }
 
     /**
@@ -297,6 +348,35 @@ public class MainActivity extends AppCompatActivity implements BLEMiBand2Helper.
 
         fragmentarSms(textfin);
 
+    }
+
+    private int getSelectedSeconds()
+    {
+        int result = 0;
+        int btnSelected = radGrp.getCheckedRadioButtonId();
+
+        switch(btnSelected){
+            case R.id.seconds30:
+                result = 30;
+                break;
+            case R.id.seconds45:
+                result = 45;
+                break;
+            case R.id.seconds60:
+                result = 60;
+                break;
+            case R.id.seconds120:
+                result = 120;
+                break;
+            case R.id.seconds180:
+                result = 180;
+                break;
+            default:
+                result=0;
+                break;
+        }
+
+        return result;
     }
 
     /**

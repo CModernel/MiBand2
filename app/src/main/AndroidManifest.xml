@@ -6,6 +6,9 @@
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
     <uses-feature android:name="android.hardware.camera" android:required="true" />
 
+    <!-- Adding power manager wake lock -->
+    <uses-permission android:name="android.permission.WAKE_LOCK"/>
+
     <!-- Whitelist and avoid entering into battery optimization -->
     <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS"/>
 

@@ -83,6 +83,6 @@
         android:layout_toEndOf="@+id/textView"
         android:ems="10"
         android:inputType="textPersonName"
-        android:text="D7:7C:97:EC:C7:64" />
+        android:text="" />
 
 </RelativeLayout>
